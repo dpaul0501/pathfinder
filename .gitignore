@@ -3,7 +3,6 @@ __pycache__/
 *.pyc
 *.pyo
 .env
-*.pptx
 backend/data/mentor_feedback.json
 .DS_Store
 *.egg-info/
