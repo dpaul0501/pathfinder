@@ -22,6 +22,14 @@ A second tab gives program officers and policymakers a **live government intelli
 
 ---
 
+## Screenshots
+
+**Government Intelligence Tab** — live Reddit signal, unmet-need gap detection, HITL dashboard
+
+![Government Intelligence](screenshots/gov-intelligence.png)
+
+---
+
 ## Stack
 
 | Layer | Tech |
