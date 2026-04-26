@@ -1,0 +1,21 @@
+# Web framework
+fastapi
+uvicorn[standard]
+python-multipart
+
+# LangChain / LangGraph / MCP
+langchain
+langchain-openai
+langchain-groq
+langchain-anthropic
+langgraph
+langchain-mcp-adapters
+mcp
+
+# HTTP / async
+httpx
+aiofiles
+
+# Env + Data
+python-dotenv
+pydantic

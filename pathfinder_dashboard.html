@@ -1,0 +1,1681 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PathFinder — WA Youth Tech Navigator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f0f4f8;
+    --surface: #ffffff;
+    --surface2: #f8fafc;
+    --border: #e2e8f0;
+    --border2: #cbd5e1;
+    --green: #059669;
+    --green-light: #d1fae5;
+    --green-mid: #6ee7b7;
+    --purple: #7c3aed;
+    --purple-light: #ede9fe;
+    --red: #dc2626;
+    --red-light: #fee2e2;
+    --amber: #d97706;
+    --amber-light: #fef3c7;
+    --text: #0f172a;
+    --text2: #334155;
+    --muted: #64748b;
+    --muted2: #94a3b8;
+    --shadow: 0 1px 3px rgba(0,0,0,0.08), 0 4px 16px rgba(0,0,0,0.04);
+    --shadow-md: 0 4px 12px rgba(0,0,0,0.10), 0 1px 3px rgba(0,0,0,0.06);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Inter', sans-serif;
+    min-height: 100vh;
+  }
+
+  /* ── HEADER ── */
+  header {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 0 40px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 64px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 1px 0 var(--border);
+  }
+
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .logo-mark {
+    width: 36px; height: 36px;
+    background: linear-gradient(135deg, #059669, #7c3aed);
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 15px;
+    color: white;
+    letter-spacing: -0.5px;
+  }
+
+  .logo-name {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 18px;
+    color: var(--text);
+    letter-spacing: -0.3px;
+  }
+
+  .logo-sub {
+    font-size: 11px;
+    color: var(--muted);
+    font-family: 'JetBrains Mono', monospace;
+    margin-top: 1px;
+  }
+
+  .header-right {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .badge {
+    padding: 5px 11px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 500;
+  }
+
+  .badge-green { background: var(--green-light); color: var(--green); }
+  .badge-purple { background: var(--purple-light); color: var(--purple); }
+  .badge-live {
+    background: #fee2e2; color: #dc2626;
+    display: flex; align-items: center; gap: 5px;
+  }
+  .badge-live::before {
+    content: '';
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: #dc2626;
+    animation: pulse 1.5s infinite;
+  }
+
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+
+  /* ── TABS ── */
+  .tab-bar {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 0 40px;
+    display: flex;
+    gap: 4px;
+  }
+
+  .tab-btn {
+    padding: 14px 20px;
+    border: none;
+    background: none;
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--muted);
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    transition: all 0.15s;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: -1px;
+  }
+
+  .tab-btn:hover { color: var(--text2); }
+
+  .tab-btn.active {
+    color: var(--green);
+    border-bottom-color: var(--green);
+    font-weight: 600;
+  }
+
+  .tab-btn.active.gov { color: var(--purple); border-bottom-color: var(--purple); }
+
+  .tab-icon {
+    width: 20px; height: 20px;
+    border-radius: 5px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px;
+  }
+
+  /* ── TAB CONTENT ── */
+  .tab-content { display: none; }
+  .tab-content.active { display: block; }
+
+  /* ── YOUTH HERO ── */
+  .youth-hero {
+    background: linear-gradient(135deg, #ecfdf5 0%, #f0f4ff 50%, #fdf4ff 100%);
+    border-bottom: 1px solid var(--border);
+    padding: 48px 40px 40px;
+  }
+
+  .youth-hero-inner {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 56px;
+    align-items: center;
+  }
+
+  .hero-eyebrow {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--green);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .hero-eyebrow::before {
+    content: '';
+    width: 20px; height: 2px;
+    background: var(--green);
+    border-radius: 2px;
+  }
+
+  h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(28px, 3.5vw, 46px);
+    font-weight: 800;
+    line-height: 1.1;
+    letter-spacing: -1.5px;
+    color: var(--text);
+    margin-bottom: 16px;
+  }
+
+  h1 .grad {
+    background: linear-gradient(90deg, var(--green), var(--purple));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .hero-desc {
+    font-size: 15px;
+    line-height: 1.7;
+    color: var(--muted);
+    margin-bottom: 28px;
+    max-width: 460px;
+  }
+
+  .hero-stats-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+
+  .stat-tile {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 20px;
+    box-shadow: var(--shadow);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .stat-tile::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    border-radius: 14px 14px 0 0;
+  }
+
+  .stat-tile.g::before { background: linear-gradient(90deg, var(--green), #34d399); }
+  .stat-tile.p::before { background: linear-gradient(90deg, var(--purple), #a78bfa); }
+  .stat-tile.r::before { background: linear-gradient(90deg, var(--red), #f87171); }
+  .stat-tile.a::before { background: linear-gradient(90deg, var(--amber), #fbbf24); }
+
+  .stat-tile-label {
+    font-size: 11px;
+    color: var(--muted);
+    font-family: 'JetBrains Mono', monospace;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 8px;
+  }
+
+  .stat-tile-val {
+    font-family: 'Syne', sans-serif;
+    font-size: 30px;
+    font-weight: 800;
+    letter-spacing: -1px;
+    margin-bottom: 4px;
+  }
+
+  .stat-tile.g .stat-tile-val { color: var(--green); }
+  .stat-tile.p .stat-tile-val { color: var(--purple); }
+  .stat-tile.r .stat-tile-val { color: var(--red); }
+  .stat-tile.a .stat-tile-val { color: var(--amber); }
+
+  .stat-tile-sub { font-size: 12px; color: var(--muted2); line-height: 1.4; }
+
+  /* ── MAIN LAYOUT ── */
+  .page-inner {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 32px 40px 60px;
+  }
+
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  .three-col { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; }
+  .full-col { width: 100%; }
+  .gap-20 { margin-top: 20px; }
+
+  /* ── CARD ── */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 24px;
+    box-shadow: var(--shadow);
+  }
+
+  .card-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+
+  .card-icon {
+    width: 32px; height: 32px;
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px;
+    flex-shrink: 0;
+  }
+
+  .card-title {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 15px;
+    color: var(--text);
+  }
+
+  .card-sub {
+    font-size: 12px;
+    color: var(--muted);
+    margin-top: 1px;
+  }
+
+  .section-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--muted2);
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .section-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  /* ── AGENT INPUT ── */
+  .agent-input-box {
+    background: var(--surface2);
+    border: 1.5px solid var(--border);
+    border-radius: 12px;
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 14px 16px;
+    margin-bottom: 12px;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+
+  .agent-input-box:focus-within {
+    border-color: var(--green);
+    box-shadow: 0 0 0 3px rgba(5,150,105,0.08);
+  }
+
+  .agent-avatar {
+    width: 32px; height: 32px; min-width: 32px;
+    border-radius: 8px;
+    background: linear-gradient(135deg, #059669, #7c3aed);
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 13px;
+    color: white;
+  }
+
+  .agent-textarea {
+    flex: 1;
+    background: transparent;
+    border: none;
+    outline: none;
+    color: var(--text);
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    resize: none;
+    height: 52px;
+    line-height: 1.6;
+  }
+
+  .agent-textarea::placeholder { color: var(--muted2); }
+
+  .send-btn {
+    padding: 9px 18px;
+    background: linear-gradient(135deg, #059669, #047857);
+    border: none;
+    border-radius: 8px;
+    color: white;
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 13px;
+    cursor: pointer;
+    display: flex; align-items: center; gap: 6px;
+    transition: all 0.2s;
+    white-space: nowrap;
+    box-shadow: 0 2px 8px rgba(5,150,105,0.25);
+  }
+
+  .send-btn:hover { transform: translateY(-1px); box-shadow: 0 4px 14px rgba(5,150,105,0.35); }
+
+  .quick-chips {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 16px;
+  }
+
+  .chip {
+    padding: 6px 13px;
+    background: var(--surface2);
+    border: 1px solid var(--border2);
+    border-radius: 20px;
+    font-size: 12px;
+    color: var(--text2);
+    cursor: pointer;
+    transition: all 0.15s;
+    font-family: 'Inter', sans-serif;
+  }
+
+  .chip:hover {
+    background: var(--green-light);
+    border-color: var(--green);
+    color: var(--green);
+  }
+
+  /* ── TYPING ── */
+  .typing {
+    display: none;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    color: var(--green);
+    font-family: 'JetBrains Mono', monospace;
+    padding: 8px 0;
+  }
+
+  .typing.visible { display: flex; }
+
+  .dots { display: flex; gap: 3px; }
+  .dots span {
+    width: 5px; height: 5px;
+    border-radius: 50%;
+    background: var(--green);
+    animation: bounce 1.2s infinite;
+  }
+  .dots span:nth-child(2) { animation-delay: 0.2s; }
+  .dots span:nth-child(3) { animation-delay: 0.4s; }
+
+  @keyframes bounce { 0%,80%,100%{transform:translateY(0);opacity:0.4} 40%{transform:translateY(-5px);opacity:1} }
+
+  /* ── AGENT RESPONSE ── */
+  .agent-response {
+    background: linear-gradient(135deg, #f0fdf4, #faf5ff);
+    border: 1.5px solid #bbf7d0;
+    border-radius: 12px;
+    padding: 18px;
+    display: none;
+    margin-top: 4px;
+  }
+
+  .agent-response.visible { display: block; animation: fadeUp 0.3s ease; }
+
+  @keyframes fadeUp { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:translateY(0)} }
+
+  .response-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--green);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  /* ── ROADMAP STEPS ── */
+  .roadmap-steps { display: flex; flex-direction: column; gap: 10px; }
+
+  .roadmap-step {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+    padding: 13px 14px;
+    background: white;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow);
+    animation: fadeUp 0.35s ease forwards;
+    opacity: 0;
+  }
+
+  .roadmap-step:nth-child(1){animation-delay:0.05s}
+  .roadmap-step:nth-child(2){animation-delay:0.15s}
+  .roadmap-step:nth-child(3){animation-delay:0.25s}
+  .roadmap-step:nth-child(4){animation-delay:0.35s}
+
+  .step-num {
+    width: 26px; height: 26px; min-width: 26px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--green), var(--purple));
+    color: white;
+    font-size: 11px;
+    font-weight: 700;
+    font-family: 'Syne', sans-serif;
+    display: flex; align-items: center; justify-content: center;
+  }
+
+  .step-week {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--green);
+    margin-bottom: 3px;
+  }
+
+  .step-action {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 3px;
+    font-family: 'Syne', sans-serif;
+  }
+
+  .step-why { font-size: 12px; color: var(--muted); line-height: 1.5; }
+
+  .step-tags { display: flex; gap: 5px; margin-top: 6px; }
+
+  .tag {
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 10px;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  .tag-prog { background: var(--green-light); color: var(--green); }
+  .tag-free { background: var(--amber-light); color: var(--amber); }
+
+  /* ── PROGRAMS LIST ── */
+  .prog-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 11px 12px;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.15s;
+    margin-bottom: 8px;
+  }
+
+  .prog-item:last-child { margin-bottom: 0; }
+  .prog-item:hover { border-color: var(--green); background: var(--surface2); }
+
+  .prog-dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
+  .prog-name { font-size: 13px; font-weight: 500; color: var(--text); margin-bottom: 2px; }
+  .prog-meta { font-size: 11px; color: var(--muted); font-family: 'JetBrains Mono', monospace; }
+  .prog-status {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    padding: 3px 8px;
+    border-radius: 5px;
+    white-space: nowrap;
+  }
+
+  /* ── GAP BARS ── */
+  .gap-row { margin-bottom: 14px; }
+  .gap-row:last-child { margin-bottom: 0; }
+
+  .gap-labels {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+    margin-bottom: 6px;
+  }
+
+  .gap-group { font-weight: 500; color: var(--text2); }
+  .gap-pct { font-family: 'JetBrains Mono', monospace; color: var(--muted); }
+
+  .bar-bg {
+    height: 7px;
+    background: var(--surface2);
+    border-radius: 4px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+  }
+
+  .bar-fill {
+    height: 100%;
+    border-radius: 4px;
+    animation: grow 1.2s ease forwards;
+    transform-origin: left;
+  }
+
+  @keyframes grow { from{transform:scaleX(0)} to{transform:scaleX(1)} }
+
+  /* ── PIPELINE ── */
+  .pipeline {
+    display: flex;
+    align-items: flex-start;
+    gap: 0;
+    overflow-x: auto;
+    padding: 8px 0 4px;
+  }
+
+  .pipe-node {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-width: 130px;
+  }
+
+  .pipe-box {
+    background: var(--surface2);
+    border: 1.5px solid var(--border);
+    border-radius: 12px;
+    padding: 14px 12px;
+    text-align: center;
+    width: 120px;
+    transition: all 0.2s;
+    cursor: default;
+  }
+
+  .pipe-box:hover { border-color: var(--green); box-shadow: 0 4px 14px rgba(5,150,105,0.12); transform: translateY(-2px); }
+  .pipe-box.active { border-color: var(--green); background: #f0fdf4; box-shadow: 0 4px 14px rgba(5,150,105,0.15); }
+
+  .pipe-icon { font-size: 20px; margin-bottom: 6px; }
+  .pipe-name { font-family: 'Syne', sans-serif; font-size: 11px; font-weight: 700; color: var(--text); margin-bottom: 3px; }
+  .pipe-desc { font-size: 10px; color: var(--muted); line-height: 1.4; }
+  .pipe-tech {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    color: var(--green);
+    margin-top: 6px;
+    background: var(--green-light);
+    padding: 2px 6px;
+    border-radius: 3px;
+    display: inline-block;
+  }
+
+  .pipe-arrow {
+    width: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--muted2);
+    font-size: 14px;
+    padding-bottom: 44px;
+    flex-shrink: 0;
+  }
+
+  /* ── IMPACT ROW ── */
+  .impact-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 14px;
+    margin-top: 20px;
+  }
+
+  .impact-tile {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 20px;
+    text-align: center;
+    box-shadow: var(--shadow);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .impact-tile::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 3px;
+    border-radius: 0 0 14px 14px;
+  }
+
+  .impact-tile:nth-child(1)::after { background: var(--green); }
+  .impact-tile:nth-child(2)::after { background: var(--purple); }
+  .impact-tile:nth-child(3)::after { background: var(--red); }
+  .impact-tile:nth-child(4)::after { background: var(--amber); }
+
+  .impact-num {
+    font-family: 'Syne', sans-serif;
+    font-size: 38px;
+    font-weight: 800;
+    letter-spacing: -2px;
+    background: linear-gradient(135deg, var(--green), var(--purple));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .impact-label { font-size: 12px; color: var(--muted); margin-top: 6px; line-height: 1.4; }
+
+  /* ── GOV TAB ── */
+  .gov-hero {
+    background: linear-gradient(135deg, #f5f3ff 0%, #faf5ff 50%, #ede9fe 100%);
+    border-bottom: 1px solid var(--border);
+    padding: 36px 40px 32px;
+  }
+
+  .gov-hero-inner {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 40px;
+  }
+
+  .gov-hero h2 {
+    font-family: 'Syne', sans-serif;
+    font-size: 28px;
+    font-weight: 800;
+    letter-spacing: -1px;
+    color: var(--text);
+    margin-bottom: 8px;
+  }
+
+  .gov-hero p {
+    font-size: 14px;
+    color: var(--muted);
+    max-width: 480px;
+    line-height: 1.6;
+  }
+
+  .gov-summary-chips {
+    display: flex;
+    gap: 10px;
+    flex-shrink: 0;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+  }
+
+  .summary-chip {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 12px 16px;
+    text-align: center;
+    min-width: 90px;
+    box-shadow: var(--shadow);
+  }
+
+  .summary-chip-val {
+    font-family: 'Syne', sans-serif;
+    font-size: 22px;
+    font-weight: 800;
+    color: var(--purple);
+    letter-spacing: -0.5px;
+  }
+
+  .summary-chip-label {
+    font-size: 10px;
+    color: var(--muted);
+    margin-top: 3px;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  /* ── INTEL FEED ── */
+  .intel-post {
+    padding: 11px 13px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.15s;
+    margin-bottom: 8px;
+  }
+
+  .intel-post:last-child { margin-bottom: 0; }
+  .intel-post:hover { border-color: var(--purple); background: var(--purple-light); }
+
+  .intel-post-title { font-size: 12px; color: var(--text2); line-height: 1.5; margin-bottom: 5px; font-weight: 500; }
+
+  .intel-meta {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+
+  .intel-tag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    padding: 1px 6px;
+    border-radius: 4px;
+  }
+
+  /* ── GAP LIST ── */
+  .gap-post {
+    padding: 11px 13px;
+    background: #fff7f7;
+    border: 1px solid #fecaca;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.15s;
+    margin-bottom: 8px;
+  }
+
+  .gap-post:last-child { margin-bottom: 0; }
+  .gap-post:hover { border-color: var(--red); }
+  .gap-post-title { font-size: 12px; color: var(--text2); line-height: 1.5; margin-bottom: 5px; font-weight: 500; }
+
+  /* ── CASE LOG ── */
+  .case-item {
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+    padding: 10px 12px;
+    border-radius: 9px;
+    margin-bottom: 7px;
+    border: 1px solid;
+  }
+
+  .case-item:last-child { margin-bottom: 0; }
+  .case-item.ai { background: #f0fdf4; border-color: #bbf7d0; }
+  .case-item.hitl { background: #fff7f7; border-color: #fecaca; }
+
+  .case-badge {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    padding: 2px 7px;
+    border-radius: 4px;
+    white-space: nowrap;
+    margin-top: 2px;
+    font-weight: 600;
+  }
+
+  .case-badge.ai { background: var(--green-light); color: var(--green); }
+  .case-badge.hitl { background: var(--red-light); color: var(--red); }
+
+  .case-summary { font-size: 12px; color: var(--text2); line-height: 1.4; }
+  .case-note { font-size: 11px; color: var(--muted); margin-top: 3px; }
+  .case-date { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--muted2); white-space: nowrap; }
+
+  /* ── MENTOR STAT TILES ── */
+  .mentor-stat-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 14px;
+  }
+
+  .m-stat {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px;
+    text-align: center;
+  }
+
+  .m-stat-val {
+    font-family: 'Syne', sans-serif;
+    font-size: 30px;
+    font-weight: 800;
+    letter-spacing: -1px;
+  }
+
+  .m-stat-val.green { color: var(--green); }
+  .m-stat-val.red { color: var(--red); }
+  .m-stat-label { font-size: 11px; color: var(--muted); margin-top: 3px; }
+  .m-stat-pct { font-family: 'JetBrains Mono', monospace; font-size: 10px; margin-top: 2px; }
+
+  /* ── ALIGNMENT BANNER ── */
+  .alignment-banner {
+    background: linear-gradient(135deg, #f0fdf4, #f5f3ff);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 20px 28px;
+    display: flex;
+    align-items: center;
+    gap: 28px;
+    box-shadow: var(--shadow);
+    margin-top: 20px;
+  }
+
+  .alignment-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--green);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    min-width: 80px;
+    font-weight: 600;
+  }
+
+  .alignment-items { display: flex; gap: 20px; flex-wrap: wrap; flex: 1; }
+
+  .align-item {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    font-size: 12px;
+    color: var(--text2);
+  }
+
+  .align-dot {
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  /* ── FEEDBACK FORM ── */
+  .feedback-form {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    margin-top: 16px;
+    padding-top: 14px;
+    border-top: 1px solid var(--border);
+  }
+
+  .form-input {
+    flex: 1;
+    min-width: 150px;
+    padding: 8px 11px;
+    background: var(--surface2);
+    border: 1px solid var(--border2);
+    border-radius: 8px;
+    color: var(--text);
+    font-size: 13px;
+    font-family: 'Inter', sans-serif;
+    outline: none;
+    transition: border-color 0.15s;
+  }
+
+  .form-input:focus { border-color: var(--purple); }
+
+  .form-select {
+    padding: 8px 11px;
+    background: var(--surface2);
+    border: 1px solid var(--border2);
+    border-radius: 8px;
+    color: var(--text);
+    font-size: 13px;
+    font-family: 'Inter', sans-serif;
+    outline: none;
+  }
+
+  .btn-purple {
+    padding: 8px 16px;
+    background: linear-gradient(135deg, var(--purple), #6d28d9);
+    border: none;
+    border-radius: 8px;
+    color: white;
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+    box-shadow: 0 2px 8px rgba(124,58,237,0.25);
+  }
+
+  .btn-purple:hover { transform: translateY(-1px); box-shadow: 0 4px 14px rgba(124,58,237,0.35); }
+
+  /* ── SCROLL CONTAINERS ── */
+  .scroll-box { max-height: 300px; overflow-y: auto; }
+  .scroll-box::-webkit-scrollbar { width: 4px; }
+  .scroll-box::-webkit-scrollbar-track { background: transparent; }
+  .scroll-box::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
+
+  /* ── FOOTER ── */
+  footer {
+    border-top: 1px solid var(--border);
+    background: var(--surface);
+    padding: 16px 40px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 11px;
+    color: var(--muted);
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 900px) {
+    .youth-hero-inner { grid-template-columns: 1fr; gap: 28px; }
+    .two-col, .three-col { grid-template-columns: 1fr; }
+    .impact-row { grid-template-columns: 1fr 1fr; }
+    .gov-hero-inner { flex-direction: column; }
+    .gov-summary-chips { justify-content: flex-start; }
+    header { padding: 0 20px; }
+    .tab-bar { padding: 0 20px; }
+    .page-inner { padding: 20px; }
+    .youth-hero, .gov-hero { padding: 28px 20px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header>
+  <div class="logo">
+    <div class="logo-mark">PF</div>
+    <div>
+      <div class="logo-name">PathFinder</div>
+      <div class="logo-sub">WA Youth Tech Navigator</div>
+    </div>
+  </div>
+  <div class="header-right">
+    <span class="badge badge-green">HSI × WiT Regatta 2026</span>
+    <span class="badge badge-purple">Strands + Claude</span>
+    <span class="badge badge-live">LIVE</span>
+  </div>
+</header>
+
+<!-- TAB BAR -->
+<div class="tab-bar">
+  <button class="tab-btn active" onclick="switchTab('youth', this)">
+    <div class="tab-icon" style="background:#d1fae5;">🧭</div>
+    Youth Navigator
+  </button>
+  <button class="tab-btn gov" onclick="switchTab('gov', this)">
+    <div class="tab-icon" style="background:#ede9fe;">📡</div>
+    Government Intelligence
+  </button>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════ YOUTH TAB -->
+<div id="tab-youth" class="tab-content active">
+
+  <!-- Hero -->
+  <div class="youth-hero">
+    <div class="youth-hero-inner">
+      <div>
+        <div class="hero-eyebrow">Track 2 — Youth Empowerment</div>
+        <h1>From <span class="grad">potential</span><br>to pipeline.</h1>
+        <p class="hero-desc">
+          Washington has 47 free tech programs for under-resourced youth — scattered across 12 agencies and 5 nonprofits.
+          PathFinder connects a 17-year-old in Rainier Beach to a tech career in one conversation.
+        </p>
+      </div>
+      <div class="hero-stats-grid">
+        <div class="stat-tile g">
+          <div class="stat-tile-label">WA Youth NEET</div>
+          <div class="stat-tile-val">~80K</div>
+          <div class="stat-tile-sub">ages 16–24 not in education or employment</div>
+        </div>
+        <div class="stat-tile p">
+          <div class="stat-tile-label">Latino credential gap</div>
+          <div class="stat-tile-val">30pt</div>
+          <div class="stat-tile-sub">32% vs 62% statewide attainment</div>
+        </div>
+        <div class="stat-tile r">
+          <div class="stat-tile-label">Ada graduates</div>
+          <div class="stat-tile-val">1,200+</div>
+          <div class="stat-tile-sub">placed at Amazon, Microsoft, Expedia</div>
+        </div>
+        <div class="stat-tile a">
+          <div class="stat-tile-label">Mentor capacity target</div>
+          <div class="stat-tile-val">10×</div>
+          <div class="stat-tile-sub">1 mentor serves 10× more youth with AI</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="page-inner">
+
+    <!-- Agent + Programs -->
+    <div class="two-col">
+
+      <!-- Agent Card -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-icon" style="background:#d1fae5;">🧭</div>
+          <div>
+            <div class="card-title">PathFinder Agent</div>
+            <div class="card-sub">Tell me about yourself — get a 12-month roadmap</div>
+          </div>
+        </div>
+
+        <div class="quick-chips">
+          <span class="chip" onclick="fillPrompt(this.textContent)">I'm 17, Latina, interested in coding, South Seattle</span>
+          <span class="chip" onclick="fillPrompt(this.textContent)">Single mom, 24, want to break into tech</span>
+          <span class="chip" onclick="fillPrompt(this.textContent)">High school dropout, 19, South Seattle</span>
+          <span class="chip" onclick="fillPrompt(this.textContent)">LGBTQ+ youth, first-gen, CS interest</span>
+        </div>
+
+        <div class="agent-input-box">
+          <div class="agent-avatar">AI</div>
+          <textarea class="agent-textarea" id="agentInput" placeholder="Age, background, goals, location in WA..."></textarea>
+          <button class="send-btn" onclick="runAgent()">Generate →</button>
+        </div>
+
+        <div class="typing" id="typing">
+          <div class="dots"><span></span><span></span><span></span></div>
+          Building your roadmap...
+        </div>
+
+        <div class="agent-response" id="agentResponse">
+          <div class="response-label">✦ PathFinder — Your Personalized Roadmap</div>
+          <div class="roadmap-steps" id="roadmapSteps"></div>
+        </div>
+      </div>
+
+      <!-- Programs + Equity -->
+      <div style="display:flex;flex-direction:column;gap:20px;">
+
+        <!-- Live Programs -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-icon" style="background:#ede9fe;">📍</div>
+            <div>
+              <div class="card-title">Live WA Programs</div>
+              <div class="card-sub">Open right now — updated daily</div>
+            </div>
+          </div>
+          <div id="programList">
+            <div style="color:var(--muted2);font-size:12px;text-align:center;padding:16px;">Loading programs...</div>
+          </div>
+        </div>
+
+        <!-- Equity Gap -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-icon" style="background:#fee2e2;">📊</div>
+            <div>
+              <div class="card-title">Post-Secondary Attainment</div>
+              <div class="card-sub">WA State — by demographic group</div>
+            </div>
+          </div>
+          <div>
+            <div class="gap-row">
+              <div class="gap-labels"><span class="gap-group">Statewide Average</span><span class="gap-pct">62%</span></div>
+              <div class="bar-bg"><div class="bar-fill" style="width:62%;background:linear-gradient(90deg,#059669,#34d399);"></div></div>
+            </div>
+            <div class="gap-row">
+              <div class="gap-labels"><span class="gap-group">Black / African American</span><span class="gap-pct">41%</span></div>
+              <div class="bar-bg"><div class="bar-fill" style="width:41%;background:linear-gradient(90deg,#7c3aed,#a78bfa);animation-delay:0.1s"></div></div>
+            </div>
+            <div class="gap-row">
+              <div class="gap-labels"><span class="gap-group">Hispanic / Latino</span><span class="gap-pct">32%</span></div>
+              <div class="bar-bg"><div class="bar-fill" style="width:32%;background:linear-gradient(90deg,#dc2626,#f87171);animation-delay:0.2s"></div></div>
+            </div>
+            <div class="gap-row">
+              <div class="gap-labels"><span class="gap-group">Native American / Indigenous</span><span class="gap-pct">28%</span></div>
+              <div class="bar-bg"><div class="bar-fill" style="width:28%;background:linear-gradient(90deg,#d97706,#fbbf24);animation-delay:0.3s"></div></div>
+            </div>
+            <div class="gap-row">
+              <div class="gap-labels"><span class="gap-group">Low-Income (Pell eligible)</span><span class="gap-pct">38%</span></div>
+              <div class="bar-bg"><div class="bar-fill" style="width:38%;background:linear-gradient(90deg,#0891b2,#67e8f9);animation-delay:0.4s"></div></div>
+            </div>
+            <div class="gap-row" style="margin-bottom:0">
+              <div class="gap-labels"><span class="gap-group">First-Generation College</span><span class="gap-pct">44%</span></div>
+              <div class="bar-bg"><div class="bar-fill" style="width:44%;background:linear-gradient(90deg,#be185d,#f472b6);animation-delay:0.5s"></div></div>
+            </div>
+          </div>
+          <div style="margin-top:14px;padding-top:12px;border-top:1px solid var(--border);font-size:11px;color:var(--muted2);font-family:'JetBrains Mono',monospace;">
+            Source: WSAC Regional Partnerships Report, Dec 2025
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Pipeline -->
+    <div class="card gap-20">
+      <div class="card-header">
+        <div class="card-icon" style="background:#ede9fe;">⚡</div>
+        <div>
+          <div class="card-title">Multi-Agent Pipeline</div>
+          <div class="card-sub">Strands + OpenClaw + Claude</div>
+        </div>
+      </div>
+      <div class="pipeline">
+        <div class="pipe-node">
+          <div class="pipe-box active">
+            <div class="pipe-icon">🗣️</div>
+            <div class="pipe-name">Intake Agent</div>
+            <div class="pipe-desc">Age, goals, location, constraints</div>
+            <div class="pipe-tech">Claude Haiku</div>
+          </div>
+        </div>
+        <div class="pipe-arrow">→</div>
+        <div class="pipe-node">
+          <div class="pipe-box">
+            <div class="pipe-icon">🗺️</div>
+            <div class="pipe-name">Resource Matcher</div>
+            <div class="pipe-desc">Live WA program DB — eligibility + seats</div>
+            <div class="pipe-tech">OpenClaw Tool</div>
+          </div>
+        </div>
+        <div class="pipe-arrow">→</div>
+        <div class="pipe-node">
+          <div class="pipe-box">
+            <div class="pipe-icon">🧩</div>
+            <div class="pipe-name">Gap Analyzer</div>
+            <div class="pipe-desc">Skill gaps vs. program prerequisites</div>
+            <div class="pipe-tech">Strands Agent</div>
+          </div>
+        </div>
+        <div class="pipe-arrow">→</div>
+        <div class="pipe-node">
+          <div class="pipe-box">
+            <div class="pipe-icon">📋</div>
+            <div class="pipe-name">Roadmap Generator</div>
+            <div class="pipe-desc">12-month path with milestones + fallbacks</div>
+            <div class="pipe-tech">Claude Sonnet</div>
+          </div>
+        </div>
+        <div class="pipe-arrow">→</div>
+        <div class="pipe-node">
+          <div class="pipe-box">
+            <div class="pipe-icon">🔁</div>
+            <div class="pipe-name">Check-In Agent</div>
+            <div class="pipe-desc">Monthly SMS nudges, deadline re-routing</div>
+            <div class="pipe-tech">Async / Twilio</div>
+          </div>
+        </div>
+        <div class="pipe-arrow">→</div>
+        <div class="pipe-node">
+          <div class="pipe-box">
+            <div class="pipe-icon">🤝</div>
+            <div class="pipe-name">Mentor Handoff</div>
+            <div class="pipe-desc">High-complexity cases → human mentor</div>
+            <div class="pipe-tech">HITL Interrupt</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Impact Row -->
+    <div class="impact-row">
+      <div class="impact-tile">
+        <div class="impact-num">10×</div>
+        <div class="impact-label">Mentor capacity multiplier</div>
+      </div>
+      <div class="impact-tile">
+        <div class="impact-num">47</div>
+        <div class="impact-label">WA programs in one navigator</div>
+      </div>
+      <div class="impact-tile">
+        <div class="impact-num">&lt;10m</div>
+        <div class="impact-label">From first message to roadmap</div>
+      </div>
+      <div class="impact-tile">
+        <div class="impact-num">$0</div>
+        <div class="impact-label">Cost to youth — all programs free</div>
+      </div>
+    </div>
+
+    <!-- Alignment Banner -->
+    <div class="alignment-banner">
+      <div class="alignment-label">WA State Alignment</div>
+      <div class="alignment-items">
+        <div class="align-item"><div class="align-dot" style="background:var(--green)"></div> WA FutureReady 2026 — graduation modernization</div>
+        <div class="align-item"><div class="align-dot" style="background:var(--purple)"></div> WSAC — Latino/BIPOC attainment gap</div>
+        <div class="align-item"><div class="align-dot" style="background:var(--red)"></div> Ada Developers Academy — AI curriculum expansion</div>
+        <div class="align-item"><div class="align-dot" style="background:var(--amber)"></div> School's Out WA 2023–2026 Strategic Plan</div>
+        <div class="align-item"><div class="align-dot" style="background:#0891b2"></div> UW GEAR UP — first-gen college access</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════ GOV TAB -->
+<div id="tab-gov" class="tab-content">
+
+  <!-- Gov Hero -->
+  <div class="gov-hero">
+    <div class="gov-hero-inner">
+      <div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--purple);letter-spacing:2px;text-transform:uppercase;margin-bottom:12px;display:flex;align-items:center;gap:8px;">
+          <span style="width:20px;height:2px;background:var(--purple);border-radius:2px;display:inline-block;"></span>
+          Policy Intelligence Layer
+        </div>
+        <h2>What youth need that the<br>system doesn't provide.</h2>
+        <p>Live Reddit signal, gap detection, and mentor capacity analytics — for program officers and policymakers. Updated in real time.</p>
+      </div>
+      <div class="gov-summary-chips" id="govSummaryChips">
+        <div class="summary-chip"><div class="summary-chip-val" id="sc-posts">—</div><div class="summary-chip-label">signals</div></div>
+        <div class="summary-chip"><div class="summary-chip-val" id="sc-gaps">—</div><div class="summary-chip-label">gaps</div></div>
+        <div class="summary-chip"><div class="summary-chip-val" id="sc-wa">—</div><div class="summary-chip-label">WA-specific</div></div>
+        <div class="summary-chip"><div class="summary-chip-val" id="sc-unmet">—</div><div class="summary-chip-label">unmet needs</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="page-inner">
+
+    <!-- Row 1: Mentor stats + Gap list + Intel feed -->
+    <div class="three-col">
+
+      <!-- Mentor HITL Dashboard -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-icon" style="background:#d1fae5;">🤝</div>
+          <div>
+            <div class="card-title">HITL Dashboard</div>
+            <div class="card-sub">AI handled vs mentor escalations</div>
+          </div>
+        </div>
+        <div id="mentorStats">
+          <div style="color:var(--muted2);font-size:12px;text-align:center;padding:24px;">Loading...</div>
+        </div>
+      </div>
+
+      <!-- Gap Detection -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-icon" style="background:#fee2e2;">🚨</div>
+          <div>
+            <div class="card-title">Unmet Needs</div>
+            <div class="card-sub">No matching WA program exists</div>
+          </div>
+        </div>
+        <div id="gapList" class="scroll-box">
+          <div style="color:var(--muted2);font-size:12px;text-align:center;padding:24px;">Loading...</div>
+        </div>
+      </div>
+
+      <!-- Live Intel Feed -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-icon" style="background:#ede9fe;">📡</div>
+          <div>
+            <div class="card-title">Live Signal</div>
+            <div class="card-sub">Youth queries from public sources</div>
+          </div>
+        </div>
+        <div style="display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap;">
+          <span style="font-family:'JetBrains Mono',monospace;font-size:10px;padding:2px 8px;border-radius:4px;background:var(--purple-light);color:var(--purple);border:1px solid #ddd6fe;">Reddit</span>
+          <span style="font-family:'JetBrains Mono',monospace;font-size:10px;padding:2px 8px;border-radius:4px;background:var(--surface2);color:var(--muted2);border:1px solid var(--border);opacity:0.6;">WSAC Reports</span>
+          <span style="font-family:'JetBrains Mono',monospace;font-size:10px;padding:2px 8px;border-radius:4px;background:var(--surface2);color:var(--muted2);border:1px solid var(--border);opacity:0.6;">OSPI Data</span>
+        </div>
+        <div id="intelFeed" class="scroll-box">
+          <div style="color:var(--muted2);font-size:12px;text-align:center;padding:24px;">Loading live signal...</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Row 2: Case log (wide) + Themes -->
+    <div class="two-col gap-20">
+
+      <!-- Case Log -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-icon" style="background:#fef3c7;">📋</div>
+          <div>
+            <div class="card-title">Case Log</div>
+            <div class="card-sub">AI handled vs HITL escalations — recent cases</div>
+          </div>
+        </div>
+        <div id="caseLog" class="scroll-box">
+          <div style="color:var(--muted2);font-size:12px;text-align:center;padding:24px;">Loading...</div>
+        </div>
+        <form id="feedbackForm" class="feedback-form">
+          <input id="fbSummary" class="form-input" placeholder="Youth case summary...">
+          <select id="fbComplexity" class="form-select">
+            <option value="ai_handled">AI Handled</option>
+            <option value="hitl">HITL Escalation</option>
+          </select>
+          <input id="fbNote" class="form-input" placeholder="Mentor note (optional)...">
+          <button type="submit" class="btn-purple">Log Case →</button>
+        </form>
+      </div>
+
+      <!-- Theme Chart -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-icon" style="background:#d1fae5;">📊</div>
+          <div>
+            <div class="card-title">Top Youth Pain Themes</div>
+            <div class="card-sub">Aggregated from live Reddit signal</div>
+          </div>
+        </div>
+        <div id="themeChart">
+          <div style="color:var(--muted2);font-size:12px;text-align:center;padding:24px;">Loading...</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <span>PathFinder · HSI × WiT Regatta Hackathon 2026 · Built by Deb Paul</span>
+  <span>AWS Strands · OpenClaw · Anthropic Claude · FastAPI · LangGraph</span>
+</footer>
+
+<script>
+  const API = 'http://localhost:8001';
+
+  function switchTab(name, btn) {
+    document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById('tab-' + name).classList.add('active');
+    btn.classList.add('active');
+    if (name === 'gov') loadGovAll();
+  }
+
+  function fillPrompt(text) {
+    document.getElementById('agentInput').value = text;
+    document.getElementById('agentInput').focus();
+  }
+
+  // ── Agent ──────────────────────────────────────────────────────────────────
+
+  function renderMentor(m) {
+    if (!m) return '';
+    return `
+      <div style="margin-top:14px;padding:14px;background:var(--purple-light);border:1px solid #ddd6fe;border-radius:10px;">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--purple);letter-spacing:1px;text-transform:uppercase;margin-bottom:8px;">Matched Mentor</div>
+        <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:14px;color:var(--text);">${m.name} · ${m.title}, ${m.company}</div>
+        <div style="font-size:12px;color:var(--muted);margin-top:4px;">${m.background}</div>
+        <div style="font-size:13px;color:var(--purple);margin-top:8px;font-style:italic;">"${m.quote}"</div>
+      </div>`;
+  }
+
+  function renderJob(j) {
+    if (!j) return '';
+    return `
+      <div style="margin-top:14px;padding:14px;background:var(--green-light);border:1px solid #6ee7b7;border-radius:10px;">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--green);letter-spacing:1px;text-transform:uppercase;margin-bottom:8px;">Where this leads</div>
+        <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:15px;color:var(--text);">${j.title} · <span style="color:var(--green)">${j.salary_range}</span></div>
+        <div style="font-size:12px;color:var(--muted);margin-top:4px;">${(j.companies||[]).join(' · ')} · ${j.timeline}</div>
+      </div>`;
+  }
+
+  async function runAgent() {
+    const input = document.getElementById('agentInput').value.trim();
+    if (!input) return;
+    const typing = document.getElementById('typing');
+    const response = document.getElementById('agentResponse');
+    const steps = document.getElementById('roadmapSteps');
+    response.classList.remove('visible');
+    typing.classList.add('visible');
+    steps.innerHTML = '';
+
+    try {
+      const res = await fetch(`${API}/api/navigate`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: input }),
+      });
+      if (!res.ok) throw new Error();
+      const data = await res.json();
+      typing.classList.remove('visible');
+      response.classList.add('visible');
+
+      (data.micro_steps || []).forEach((step, i) => {
+        setTimeout(() => {
+          const el = document.createElement('div');
+          el.className = 'roadmap-step';
+          el.innerHTML = `
+            <div class="step-num">${i + 1}</div>
+            <div style="flex:1;">
+              <div class="step-week">${step.week}</div>
+              <div class="step-action">${step.action}</div>
+              <div class="step-why">${step.why || ''}</div>
+              <div class="step-tags">
+                <span class="tag tag-prog">${step.program || ''}</span>
+                <span class="tag tag-free">Free</span>
+              </div>
+            </div>`;
+          steps.appendChild(el);
+        }, i * 200);
+      });
+
+      setTimeout(() => {
+        const extras = document.createElement('div');
+        extras.innerHTML = renderJob(data.job_destination) + renderMentor(data.mentor);
+        steps.appendChild(extras);
+      }, (data.micro_steps || []).length * 200 + 100);
+
+    } catch (_) {
+      typing.classList.remove('visible');
+      steps.innerHTML = `<div style="color:var(--red);font-size:13px;padding:12px;font-family:'JetBrains Mono',monospace;">
+        Backend not running — start with:<br>venv/bin/uvicorn backend.main:app --port 8001 --reload
+      </div>`;
+      response.classList.add('visible');
+    }
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    document.getElementById('agentInput').addEventListener('keydown', e => {
+      if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); runAgent(); }
+    });
+  });
+
+  // ── Programs ───────────────────────────────────────────────────────────────
+
+  async function loadPrograms() {
+    try {
+      const res = await fetch(`${API}/api/programs`);
+      if (!res.ok) return;
+      const programs = await res.json();
+      const dotColors = ['#059669','#7c3aed','#d97706','#dc2626','#0891b2'];
+      const statusColors = { open: '#059669', enrolling: '#7c3aed', applications_open: '#059669', active: '#0891b2', waitlist: '#d97706' };
+      document.getElementById('programList').innerHTML = programs.slice(0, 5).map((p, i) => `
+        <div class="prog-item">
+          <div class="prog-dot" style="background:${dotColors[i % dotColors.length]}"></div>
+          <div style="flex:1;">
+            <div class="prog-name">${p.name}</div>
+            <div class="prog-meta">${p.provider} · ${p.cost}</div>
+          </div>
+          <div class="prog-status" style="background:${statusColors[p.status] || '#64748b'}20;color:${statusColors[p.status] || '#64748b'}">${p.status}</div>
+        </div>`).join('');
+    } catch (_) {}
+  }
+
+  // ── Gov loaders ────────────────────────────────────────────────────────────
+
+  let govLoaded = false;
+
+  async function loadGovAll() {
+    if (govLoaded) return;
+    govLoaded = true;
+    loadMentorStats();
+    loadCaseLog();
+    loadGovIntel();
+  }
+
+  async function loadMentorStats() {
+    try {
+      const res = await fetch(`${API}/api/gov/mentor/stats`);
+      if (!res.ok) return;
+      const s = await res.json();
+      document.getElementById('mentorStats').innerHTML = `
+        <div class="mentor-stat-grid">
+          <div class="m-stat">
+            <div class="m-stat-val green">${s.ai_handled}</div>
+            <div class="m-stat-label">AI Handled</div>
+            <div class="m-stat-pct" style="color:var(--green)">${s.ai_pct}%</div>
+          </div>
+          <div class="m-stat">
+            <div class="m-stat-val red">${s.hitl}</div>
+            <div class="m-stat-label">HITL Escalations</div>
+            <div class="m-stat-pct" style="color:var(--red)">${s.hitl_pct}%</div>
+          </div>
+        </div>
+        <div style="background:var(--purple-light);border:1px solid #ddd6fe;border-radius:10px;padding:14px;text-align:center;">
+          <div style="font-family:'Syne',sans-serif;font-size:32px;font-weight:800;color:var(--purple);letter-spacing:-1px;">${s.capacity_multiplier}×</div>
+          <div style="font-size:12px;color:var(--muted);margin-top:4px;">1 mentor now serves ${s.capacity_multiplier}× more youth</div>
+        </div>
+        <div style="margin-top:10px;font-size:11px;color:var(--muted2);font-family:'JetBrains Mono',monospace;text-align:center;">${s.total} total cases logged</div>`;
+    } catch (_) {}
+  }
+
+  async function loadCaseLog() {
+    try {
+      const res = await fetch(`${API}/api/gov/mentor/cases?limit=20`);
+      if (!res.ok) return;
+      const { cases } = await res.json();
+      if (!cases.length) return;
+      document.getElementById('caseLog').innerHTML = cases.map(c => {
+        const isH = c.complexity === 'hitl';
+        const time = new Date(c.timestamp).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+        return `
+          <div class="case-item ${isH ? 'hitl' : 'ai'}">
+            <span class="case-badge ${isH ? 'hitl' : 'ai'}">${isH ? 'HITL' : 'AI'}</span>
+            <div style="flex:1;">
+              <div class="case-summary">${c.youth_summary}</div>
+              ${c.note ? `<div class="case-note">↳ ${c.note}</div>` : ''}
+            </div>
+            <span class="case-date">${time}</span>
+          </div>`;
+      }).join('');
+    } catch (_) {}
+  }
+
+  async function loadGovIntel() {
+    try {
+      const res = await fetch(`${API}/api/gov/intel?max_posts=10`);
+      if (!res.ok) return;
+      const data = await res.json();
+      const s = data.summary || {};
+
+      // Summary chips
+      document.getElementById('sc-posts').textContent = s.total_posts || '—';
+      document.getElementById('sc-gaps').textContent = s.gap_count || '—';
+      document.getElementById('sc-wa').textContent = s.wa_specific || '—';
+      document.getElementById('sc-unmet').textContent = s.unanswered || '—';
+
+      // Intel feed
+      const needColors = { find_program: '#059669', financial_aid: '#d97706', skill_gap: '#7c3aed', job_search: '#dc2626', eligibility_question: '#0891b2', mentorship: '#be185d' };
+      if (data.posts?.length) {
+        document.getElementById('intelFeed').innerHTML = data.posts.slice(0, 8).map(p => {
+          const c = needColors[p.need_type] || '#64748b';
+          const urgDot = p.urgency === 'high' ? '#dc2626' : p.urgency === 'medium' ? '#d97706' : '#94a3b8';
+          return `
+            <div class="intel-post" onclick="window.open('${p.url}','_blank')">
+              <div style="display:flex;gap:7px;align-items:flex-start;">
+                <span style="width:7px;height:7px;border-radius:50%;background:${urgDot};flex-shrink:0;margin-top:4px;"></span>
+                <div class="intel-post-title">${p.title}</div>
+              </div>
+              <div class="intel-meta" style="margin-left:14px;">
+                <span class="intel-tag" style="background:#f3f4f6;color:#64748b;">r/${p.subreddit}</span>
+                ${p.need_type ? `<span class="intel-tag" style="background:${c}18;color:${c};">${p.need_type.replace(/_/g,' ')}</span>` : ''}
+                ${p.location_wa ? `<span class="intel-tag" style="background:#d1fae5;color:#059669;">📍 WA</span>` : ''}
+                <span style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted2);">↑${p.score}</span>
+              </div>
+            </div>`;
+        }).join('');
+      }
+
+      // Gap list
+      if (data.gaps?.length) {
+        document.getElementById('gapList').innerHTML = data.gaps.slice(0, 6).map(g => {
+          const urgColor = g.urgency === 'high' ? '#dc2626' : '#d97706';
+          return `
+            <div class="gap-post" onclick="window.open('${g.url}','_blank')">
+              <div class="gap-post-title">${g.title}</div>
+              <div style="display:flex;gap:6px;flex-wrap:wrap;">
+                <span class="intel-tag" style="background:#fee2e2;color:${urgColor};">${g.urgency}</span>
+                <span class="intel-tag" style="background:#f3f4f6;color:#64748b;">${(g.theme||'').replace(/_/g,' ')}</span>
+                ${g.location_wa ? `<span class="intel-tag" style="background:#d1fae5;color:#059669;">📍 WA</span>` : ''}
+              </div>
+            </div>`;
+        }).join('');
+      }
+
+      // Theme chart
+      if (data.themes?.length) {
+        const max = data.themes[0].count;
+        const barColors = ['#059669','#7c3aed','#dc2626','#d97706','#0891b2','#be185d','#64748b','#374151'];
+        document.getElementById('themeChart').innerHTML = data.themes.map((t, i) => `
+          <div class="gap-row">
+            <div class="gap-labels">
+              <span class="gap-group">${t.theme}</span>
+              <span class="gap-pct">${t.count}</span>
+            </div>
+            <div class="bar-bg">
+              <div class="bar-fill" style="width:${Math.round(t.count/max*100)}%;background:${barColors[i % barColors.length]};animation-delay:${i*0.1}s"></div>
+            </div>
+          </div>`).join('');
+      }
+
+    } catch (_) {}
+  }
+
+  // Feedback form
+  document.addEventListener('DOMContentLoaded', () => {
+    document.getElementById('feedbackForm').addEventListener('submit', async e => {
+      e.preventDefault();
+      const summary = document.getElementById('fbSummary').value.trim();
+      if (!summary) return;
+      const btn = e.target.querySelector('button');
+      btn.textContent = 'Saving...';
+      try {
+        await fetch(`${API}/api/gov/mentor/feedback`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            youth_summary: summary,
+            complexity: document.getElementById('fbComplexity').value,
+            note: document.getElementById('fbNote').value.trim() || null,
+          }),
+        });
+        document.getElementById('fbSummary').value = '';
+        document.getElementById('fbNote').value = '';
+        btn.textContent = 'Logged ✓';
+        setTimeout(() => { btn.textContent = 'Log Case →'; }, 2000);
+        govLoaded = false;
+        loadMentorStats();
+        loadCaseLog();
+      } catch (_) { btn.textContent = 'Log Case →'; }
+    });
+  });
+
+  // Boot
+  loadPrograms();
+</script>
+</body>
+</html>

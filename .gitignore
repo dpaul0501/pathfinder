@@ -1,0 +1,12 @@
+venv/
+__pycache__/
+*.pyc
+*.pyo
+.env
+*.pptx
+backend/data/mentor_feedback.json
+.DS_Store
+*.egg-info/
+dist/
+build/
+regatta12006/
